@@ -1,10 +1,33 @@
+.body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #1b1b1b; /* Dark background color */
+  color: #fff;
+}
+
 .App {
   text-align: center;
+  margin: 20px;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+h1 {
+  color: #ffcd00;
+}
+h2 {
+  color: #ffcd00;
+}
+
+p {
+  color: #ccc;
+}
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
 }
 
 @media (prefers-reduced-motion: no-preference) {
