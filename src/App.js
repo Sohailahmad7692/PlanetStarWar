@@ -59,15 +59,35 @@ const List = styled.li`
   color: #aaa;
   margin-bottom: 5px;
 `;
+const SpinnerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  `;
+const Spinner = styled.div`
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #ffc107; /* Star Wars yellow */
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    `;
 
 const App = () => {
   const [planets, setPlanets] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [nextPage, setNextPage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`https://swapi.dev/api/planets/?page=${currentPage}&format=json`);
         const planetsData = await Promise.all(
           response.data.results.map(async (planet) => {
@@ -84,6 +104,8 @@ const App = () => {
         setNextPage(response.data.next);
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -103,38 +125,45 @@ const App = () => {
   return (
     <div className="App">
       <h1>Planets Directory</h1>
-      <PlanetContainer className="planets-container">
-        {planets.map((planet) => (
-          <PlanetCard key={planet.name} className="planet-card">
-            <h2>{planet.name}</h2>
-            <p>Climate: {planet.climate}</p>
-            <p>Population: {planet.population}</p>
-            <p>Terrain: {planet.terrain}</p>
+      {loading ? (
+        <SpinnerContainer>
+          <Spinner></Spinner>
+        </SpinnerContainer>
+      ) : (
+        <div>
+          <PlanetContainer>
+            {planets.map((planet) => (
+              <PlanetCard key={planet.name}>
+                <h2>{planet.name}</h2>
+                <p>Climate: {planet.climate}</p>
+                <p>Population: {planet.population}</p>
+                <p>Terrain: {planet.terrain}</p>
 
-            {planet.residents.length > 0 && (
-              <div>
-                <h3>Residents:</h3>
-                <UnorderList>
-                  {planet.residents.map((resident) => (
-                    <List key={resident.name}>
-                      {resident.name} - Height: {resident.height}, Mass: {resident.mass}, Gender: {resident.gender}
-                    </List>
-                  ))}
-                </UnorderList>
-              </div>
-            )}
-          </PlanetCard>
-        ))}
-      </PlanetContainer>
+                {planet.residents.length > 0 && (
+                  <div>
+                    <h3>Residents:</h3>
+                    <UnorderList>
+                      {planet.residents.map((resident) => (
+                        <List key={resident.name}>
+                          {resident.name} - Height: {resident.height}, Mass: {resident.mass}, Gender: {resident.gender}
+                        </List>
+                      ))}
+                    </UnorderList>
+                  </div>
+                )}
+              </PlanetCard>
+            ))}
+          </PlanetContainer>
 
-      <Pagination className="pagination">
-        <Button onClick={handlePrevPage} disabled={currentPage === 1}>
-          Previous Page
-        </Button>
-        <Button onClick={handleNextPage} disabled={!nextPage}>
-          Next Page
-        </Button>
-      </Pagination>
+          <Pagination>
+            <Button onClick={handlePrevPage} disabled={currentPage === 1}>
+              Previous Page
+            </Button>
+            <Button onClick={handleNextPage} disabled={!nextPage}>
+              Next Page
+            </Button>
+          </Pagination>
+        </div>)}
     </div>
   );
 };
